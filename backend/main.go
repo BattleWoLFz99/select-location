@@ -1,4 +1,3 @@
-// Connects to MongoDB and sets a Stable API version
 package main
 
 import (
@@ -8,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/graphql-go/graphql"
+	"github.com/rs/cors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -49,13 +49,33 @@ func main() {
 				Name: "State",
 				Fields: graphql.Fields{
 					"name": &graphql.Field{Type: graphql.String},
-					"code": &graphql.Field{Type: graphql.String},
 				},
 			})),
+			Args: graphql.FieldConfigArgument{
+				"search": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				collection := client.Database("us_states").Collection("states")
+				filter := bson.D{}
+
+				// Add search filter if search parameter is provided
+				if search, ok := p.Args["search"].(string); ok && search != "" {
+					filter = bson.D{{
+						"name",
+						bson.D{{
+							"$regex",
+							"^" + search,
+						}, {
+							"$options",
+							"i",
+						}},
+					}}
+				}
+
 				var states []State
-				cursor, err := collection.Find(context.TODO(), bson.D{})
+				cursor, err := collection.Find(context.TODO(), filter)
 				if err != nil {
 					return nil, err
 				}
@@ -78,13 +98,23 @@ func main() {
 		panic(err)
 	}
 
-	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		result := graphql.Do(graphql.Params{
 			Schema:        schema,
 			RequestString: r.URL.Query().Get("query"),
 		})
 		json.NewEncoder(w).Encode(result)
 	})
+
+	// Set up CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000"}, // Vue.js default port
+		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type"},
+	})
+
+	// Wrap our handler with CORS
+	http.Handle("/graphql", c.Handler(handler))
 
 	fmt.Println("Server is running on port 8080")
 	http.ListenAndServe(":8080", nil)
