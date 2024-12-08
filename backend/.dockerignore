@@ -1,0 +1,25 @@
+# Exclude the Go build cache
+**/.cache
+**/bin
+**/pkg
+
+# Exclude vendor directory (if using Go modules)
+vendor/
+
+# Exclude IDE/editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exclude temporary files
+*.log
+*.tmp
+*.bak
+
+# Exclude other files
+Dockerfile
+docker-compose.yml
+README.md
+LICENSE
+*.md

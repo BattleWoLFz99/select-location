@@ -17,10 +17,10 @@ const querySearch = async (queryString: string, cb: (arg: any) => void) => {
   let url;
   if (queryString) {
     const queryState = encodeURIComponent(`{states(search: "${queryString}") {name}}`);
-    url = `http://127.0.0.1:8080/graphql?query=${queryState}`
+    url = `graphql?query=${queryState}`
   } else {
     const queryAll = encodeURIComponent(`{states{name}}`);
-    url = `http://127.0.0.1:8080/graphql?query=${queryAll}`
+    url = `graphql?query=${queryAll}`
   }
   try {
     fetch(url, {
