@@ -1,6 +1,6 @@
 package config
 
 const (
-	MongoURI = "mongodb://localhost:27017"
+	MongoURI = "mongodb://mongodb:27017"
 	DBName   = "us_states"
 )
