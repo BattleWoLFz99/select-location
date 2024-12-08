@@ -1,4 +1,4 @@
-module us-states-project
+module select-location
 
 go 1.23.4
 
