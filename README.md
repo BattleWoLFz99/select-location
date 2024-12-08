@@ -9,7 +9,19 @@
 
 This project utilized Go, vue.js, docker, and GraphQL
 
-## Installation
+## Script Installation
+Server start
+```sh
+chmod +x start.sh
+./start.sh up
+```
+Server stop
+```sh
+chmod +x start.sh
+./start.sh down
+```
+
+## Optional Mannual Installation
 Please make sure Go, Docker, vue3 is properly installed
 
 ### Backend
