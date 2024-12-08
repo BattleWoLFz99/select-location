@@ -1,0 +1,33 @@
+version: '3.1'
+services:
+  mongodb:
+    image: mongo:8.0.3-noble
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+  dbsetup:
+    build:
+      context: ./dbsetup
+    depends_on:
+      - mongodb
+    restart: "no"
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb  
+  
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:
